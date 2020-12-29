@@ -4,18 +4,19 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using MVCData_assignments.Models;
+using MVCData_assignments.Models.Services;
 
 namespace MVCData_assignments.Controllers
 {
     public class PersonController : Controller
     {
 
-        IPersonService _personService;
+        private IPersonService _personService;
         PersonListViewModel personListVM = new PersonListViewModel();
 
-        public PersonController()
+        public PersonController(IPersonService personService)
         {
-            _personService = new PersonService();
+            _personService = personService;
         }
 
         public IActionResult Index()
@@ -35,19 +36,19 @@ namespace MVCData_assignments.Controllers
         {
             if (ModelState.IsValid)
             {
-                personListVM.PersonList = _personService.CreatePerson(personVM.Name, personVM.City, personVM.Phonenumber);
+                _personService.Add(personVM);
                 return RedirectToAction("Index", personListVM);
 
             }
 
-            return View();
+            return View("Index", personListVM);
         }
         [HttpPost]
         public IActionResult Update(Person person)
         {
             if (ModelState.IsValid)
             {
-                _personService.UpdatePerson(person);
+                _personService.Edit(person);
                 return PartialView("_personPartial", person);
 
             }
